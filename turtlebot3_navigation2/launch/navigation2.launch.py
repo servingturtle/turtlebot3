@@ -20,8 +20,10 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.actions import OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
 TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
@@ -30,6 +32,7 @@ ROS_DISTRO = os.environ.get('ROS_DISTRO')
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    start_rviz = LaunchConfiguration('start_rviz', default='true')
     map_dir = LaunchConfiguration(
         'map',
         default=os.path.join(
@@ -87,6 +90,11 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
+        DeclareLaunchArgument(
+            'start_rviz',
+            default_value=start_rviz,
+            description='Start RViz2 if true'),
+
         # RFID 복귀 네비게이션 파라미터
         DeclareLaunchArgument(
             'return_x',
@@ -136,13 +144,16 @@ def generate_launch_description():
                 'params_file': param_dir}.items(),
         ),
 
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_dir],
-            parameters=[{'use_sim_time': use_sim_time}],
-            output='screen'),
+        # RViz 노드는 필요할 때만 생성되도록 OpaqueFunction으로 지연 생성
+        OpaqueFunction(function=lambda context: [
+            Node(
+                package='rviz2',
+                executable='rviz2',
+                name='rviz2',
+                arguments=['-d', rviz_config_dir],
+                parameters=[{'use_sim_time': use_sim_time}],
+                output='screen')
+        ] if str(LaunchConfiguration('start_rviz').perform(context)).lower() in ['1', 'true', 'yes', 'on'] else []),
 
         # RFID 복귀 네비게이션 노드
         Node(
