@@ -76,6 +76,15 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
+    # RFID parameters
+    rfid_bus = LaunchConfiguration('rfid_bus', default='0')
+    rfid_device = LaunchConfiguration('rfid_device', default='0')
+    rfid_hold_ms = LaunchConfiguration('rfid_hold_ms', default='80')
+    rfid_cooldown = LaunchConfiguration('rfid_cooldown', default='1.0')
+    rfid_grace_ms = LaunchConfiguration('rfid_grace_ms', default='200')
+    rfid_whitelist = LaunchConfiguration('rfid_whitelist', default='')
+    rfid_rst_bcm = LaunchConfiguration('rfid_rst_bcm', default='24')
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
@@ -96,6 +105,42 @@ def generate_launch_description():
             'namespace',
             default_value=namespace,
             description='Namespace for nodes'),
+
+        # RFID parameters
+        DeclareLaunchArgument(
+            'rfid_bus',
+            default_value=rfid_bus,
+            description='SPI bus number for RFID reader'),
+
+        DeclareLaunchArgument(
+            'rfid_device',
+            default_value=rfid_device,
+            description='SPI device number for RFID reader'),
+
+        DeclareLaunchArgument(
+            'rfid_hold_ms',
+            default_value=rfid_hold_ms,
+            description='Hold time in milliseconds for RFID'),
+
+        DeclareLaunchArgument(
+            'rfid_cooldown',
+            default_value=rfid_cooldown,
+            description='Cooldown time in seconds for RFID'),
+
+        DeclareLaunchArgument(
+            'rfid_grace_ms',
+            default_value=rfid_grace_ms,
+            description='Grace period in milliseconds for RFID'),
+
+        DeclareLaunchArgument(
+            'rfid_whitelist',
+            default_value=rfid_whitelist,
+            description='Comma-separated list of whitelisted RFID UIDs'),
+
+        DeclareLaunchArgument(
+            'rfid_rst_bcm',
+            default_value=rfid_rst_bcm,
+            description='BCM line number for RFID reset pin'),
 
         PushRosNamespace(namespace),
 
@@ -120,5 +165,21 @@ def generate_launch_description():
                 tb3_param_dir,
                 {'namespace': namespace}],
             arguments=['-i', usb_port],
+            output='screen'),
+
+        # RFID Tag Publisher Node
+        Node(
+            package='rfid_tag_publisher',
+            executable='rfid_tag_publisher',
+            name='rfid_tag_publisher',
+            parameters=[{
+                'bus': rfid_bus,
+                'device': rfid_device,
+                'hold_ms': rfid_hold_ms,
+                'cooldown': rfid_cooldown,
+                'grace_ms': rfid_grace_ms,
+                'whitelist': rfid_whitelist,
+                'rst_bcm': rfid_rst_bcm,
+            }],
             output='screen'),
     ])
