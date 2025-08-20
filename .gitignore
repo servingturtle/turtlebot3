@@ -39,6 +39,8 @@
 cpp/
 bin/
 build/
+install/
+log/
 msg_gen/
 srv_gen/
 docs/
