@@ -8,7 +8,6 @@
 - 왼쪽, 앞쪽, 오른쪽 초음파 센서 지원
 - ROS1이 없는 환경에서도 시뮬레이션 모드로 동작
 - 실시간 데이터 변환 및 발행
-- SLAM + Navigation 통합 지원
 
 ## 토픽
 
@@ -57,9 +56,6 @@ ros2 launch ultrasonic_sensor_bridge ultrasonic_ros1_bridge.launch.py simulation
 
 # 기본 시뮬레이션 브리지
 ros2 launch ultrasonic_sensor_bridge ultrasonic_sensor_bridge.launch.py
-
-# SLAM + Navigation + 초음파 센서 통합 실행
-ros2 launch ultrasonic_sensor_bridge slam_navigation.launch.py
 ```
 
 #### 방법 2: 직접 실행
