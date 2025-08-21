@@ -13,7 +13,8 @@ setup(
         ('share/' + package_name + '/launch', [
             'launch/ultrasonic_sensor_bridge.launch.py',
             'launch/ultrasonic_ros1_bridge.launch.py',
-            'launch/sonar_to_range_converter.launch.py'
+            'launch/sonar_to_range_converter.launch.py',
+            'launch/turtlebot3_with_ultrasonic.launch.py'
         ]),
     ],
     install_requires=['setuptools'],
