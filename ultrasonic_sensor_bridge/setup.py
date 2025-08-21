@@ -31,6 +31,7 @@ setup(
         'sonar_to_range_converter = ultrasonic_sensor_bridge.sonar_to_range_converter:main',
         'opencr_monitor = ultrasonic_sensor_bridge.opencr_monitor:main',
         'opencr_table_reader = ultrasonic_sensor_bridge.opencr_table_reader:main',
+        'ultrasonic_publisher = ultrasonic_sensor_bridge.ultrasonic_publisher:main',
         ],
     },
 )

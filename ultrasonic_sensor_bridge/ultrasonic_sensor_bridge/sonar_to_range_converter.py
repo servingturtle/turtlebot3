@@ -46,10 +46,13 @@ class SonarToRangeConverter(Node):
         """SensorState 메시지 콜백"""
         current_time = self.get_clock().now()
         
-        # 3개 초음파 센서 데이터 사용
-        left_distance = msg.ultrasonic_left if hasattr(msg, 'ultrasonic_left') and msg.ultrasonic_left > 0 else self.left_distance
-        front_distance = msg.ultrasonic_front if hasattr(msg, 'ultrasonic_front') and msg.ultrasonic_front > 0 else self.front_distance
-        right_distance = msg.ultrasonic_right if hasattr(msg, 'ultrasonic_right') and msg.ultrasonic_right > 0 else self.right_distance
+        # sonar 데이터 사용 (임시 해결책)
+        sonar_distance = msg.sonar if msg.sonar > 0 else self.front_distance
+        
+        # 3개 센서를 시뮬레이션 (실제로는 OpenCR에서 개별 센서 데이터를 받아야 함)
+        left_distance = sonar_distance * 0.8  # sonar 값의 80%
+        front_distance = sonar_distance        # sonar 값 그대로
+        right_distance = sonar_distance * 0.9  # sonar 값의 90%
         
         # 왼쪽 센서 데이터
         left_msg = self.create_range_message(
