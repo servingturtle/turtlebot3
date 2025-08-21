@@ -66,6 +66,11 @@ typedef struct
   ControlItem ir = {34, RAM, 4, READ};
   ControlItem sonar = {38, RAM, 4, READ};
 
+  // Additional ultrasonic sensors (3 sensors)
+  ControlItem ultrasonic_left = {190, RAM, 4, READ};
+  ControlItem ultrasonic_front = {194, RAM, 4, READ};
+  ControlItem ultrasonic_right = {198, RAM, 4, READ};
+
   ControlItem battery_voltage = {42, RAM, 4, READ};
   ControlItem battery_percentage = {46, RAM, 4, READ};
 

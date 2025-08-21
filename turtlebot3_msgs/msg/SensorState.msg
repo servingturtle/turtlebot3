@@ -8,8 +8,10 @@ uint8 BUMPER_BACKWARD = 2
 # Cliff sensor states (states are combined, when multiple cliff sensors are triggered)
 uint8 CLIFF = 1
 
-# Sonar sensor states (states are combined, when multiple sonar sensors are triggered)
-uint8 SONAR = 1
+# Ultrasonic sensor states (3 individual sensors)
+uint8 ULTRASONIC_LEFT = 1
+uint8 ULTRASONIC_FRONT = 2
+uint8 ULTRASONIC_RIGHT = 3
 
 # Illumination sensor (states are combined, when multiple illumination sensors are triggered) 
 uint8 ILLUMINATION = 1
@@ -32,7 +34,6 @@ uint8 TORQUE_OFF = 2
 std_msgs/Header  header
 uint8   bumper
 float32 cliff
-float32 sonar
 float32 illumination
 uint8   led
 uint8  button
