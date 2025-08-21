@@ -26,9 +26,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ultrasonic_sensor_bridge = ultrasonic_sensor_bridge.ultrasonic_sensor_bridge:main',
-            'ultrasonic_ros1_bridge = ultrasonic_sensor_bridge.ultrasonic_ros1_bridge:main',
-            'sonar_to_range_converter = ultrasonic_sensor_bridge.sonar_to_range_converter:main',
+                    'ultrasonic_sensor_bridge = ultrasonic_sensor_bridge.ultrasonic_sensor_bridge:main',
+        'ultrasonic_ros1_bridge = ultrasonic_sensor_bridge.ultrasonic_ros1_bridge:main',
+        'sonar_to_range_converter = ultrasonic_sensor_bridge.sonar_to_range_converter:main',
+        'opencr_monitor = ultrasonic_sensor_bridge.opencr_monitor:main',
         ],
     },
 )
