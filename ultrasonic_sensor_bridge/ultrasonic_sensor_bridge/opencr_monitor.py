@@ -27,13 +27,16 @@ class OpenCRMonitor(Node):
         self.last_update = 0
         
         self.get_logger().info('OpenCR Monitor started')
+        self.get_logger().info('Looking for 3 ultrasonic sensors from OpenCR control table')
     
     def sensor_callback(self, msg):
         # OpenCR의 sensor_state에서 데이터 읽기
         self.sonar_value = msg.sonar
-        # OpenCR의 제어 테이블에서 초음파 센서 값들
-        # 이 값들은 turtlebot3_node에서 읽어와야 함
         self.last_update = time.time()
+        
+        # TODO: OpenCR의 제어 테이블에서 직접 3개 센서 값 읽기
+        # 현재 turtlebot3_node가 이 값들을 읽지 않으므로
+        # 별도의 방법으로 OpenCR 제어 테이블에 접근해야 함
     
     def print_values(self):
         current_time = time.time()
@@ -42,14 +45,18 @@ class OpenCRMonitor(Node):
         status = "OK" if (current_time - self.last_update) < 2.0 else "NO DATA"
         
         print(f"\n=== OpenCR Sensor Values ===")
-        print(f"Sonar:           {self.sonar_value:.3f}m [{status}]")
-        print(f"Time:            {time.strftime('%H:%M:%S')}")
-        print("=" * 35)
+        print(f"Sonar (original):  {self.sonar_value:.3f}m [{status}]")
+        print(f"Left (addr 190):   {self.ultrasonic_left:.3f}m [NOT READ]")
+        print(f"Front (addr 194):  {self.ultrasonic_front:.3f}m [NOT READ]")
+        print(f"Right (addr 198):  {self.ultrasonic_right:.3f}m [NOT READ]")
+        print(f"Time:              {time.strftime('%H:%M:%S')}")
+        print("=" * 45)
         
         # 추가 정보 출력
         if status == "OK":
             print(f"Note: Sonar value from OpenCR control table")
-            print(f"      Check if this value changes when moving objects")
+            print(f"      Need to read 3 ultrasonic sensors from addresses 190, 194, 198")
+            print(f"      Current turtlebot3_node doesn't read these values")
         else:
             print(f"Warning: No data received from OpenCR")
 
