@@ -90,8 +90,18 @@ class UltrasonicPublisher(Node):
         
         try:
             # 단일 주소 읽기
-            result, error = self.packet_handler.read4ByteTxRx(
+            result = self.packet_handler.read4ByteTxRx(
                 self.port_handler, self.OPENCR_ID, address)
+            
+            # result가 튜플인지 확인
+            if isinstance(result, tuple):
+                if len(result) >= 2:
+                    data, error = result[0], result[1]
+                else:
+                    self.get_logger().warn(f'Unexpected result format: {result}')
+                    return None
+            else:
+                data, error = result, 0
             
             if error != 0:
                 self.get_logger().warn(f'Failed to read address {address}: {error}')
@@ -99,7 +109,7 @@ class UltrasonicPublisher(Node):
             
             # 4바이트를 float로 변환
             import struct
-            float_value = struct.unpack('f', struct.pack('I', result))[0]
+            float_value = struct.unpack('f', struct.pack('I', data))[0]
             return float_value
             
         except Exception as e:
