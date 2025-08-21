@@ -7,12 +7,16 @@ from std_msgs.msg import Header
 import time
 
 # DYNAMIXEL SDK import
+import sys
+sys.path.append('/root/turtlebot3_ws/install/dynamixel_sdk/local/lib/python3.10/dist-packages')
+
 try:
     import dynamixel_sdk as dxl
     DYNAMIXEL_AVAILABLE = True
-except ImportError:
+    print("DYNAMIXEL SDK imported successfully")
+except ImportError as e:
     DYNAMIXEL_AVAILABLE = False
-    print("Warning: DYNAMIXEL SDK not available")
+    print(f"Warning: DYNAMIXEL SDK not available: {e}")
 
 
 class UltrasonicPublisher(Node):
