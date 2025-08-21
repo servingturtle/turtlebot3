@@ -2,8 +2,11 @@
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
+import os
 
 
 def generate_launch_description():
@@ -16,14 +19,13 @@ def generate_launch_description():
         ),
         
         # TurtleBot3 Robot Node (센서 데이터 소스)
-        Node(
-            package='turtlebot3_bringup',
-            executable='turtlebot3_robot',
-            name='turtlebot3_robot',
-            output='screen',
-            parameters=[{
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(get_package_share_directory('turtlebot3_bringup'), 'launch', 'robot.launch.py')
+            ]),
+            launch_arguments={
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
-            }],
+            }.items(),
         ),
         
         # Sonar to Range Converter Node
