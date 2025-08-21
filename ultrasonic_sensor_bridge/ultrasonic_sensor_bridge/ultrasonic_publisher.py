@@ -154,8 +154,8 @@ class UltrasonicPublisher(Node):
             self.publish_range_msg(self.front_pub, front_val, 'ultrasonic_front')
             self.publish_range_msg(self.right_pub, right_val, 'ultrasonic_right')
             
-            # 터미널 출력
-            self.print_values(left_val, front_val, right_val)
+            # 터미널 출력 (디버깅용, 필요시 주석 해제)
+            # self.print_values(left_val, front_val, right_val)
             
         except Exception as e:
             self.get_logger().error(f'Error in ultrasonic read: {e}')
@@ -174,13 +174,14 @@ class UltrasonicPublisher(Node):
         publisher.publish(msg)
     
     def print_values(self, left_val, front_val, right_val):
-        """터미널에 값 출력"""
+        """터미널에 값 출력 (디버깅용)"""
         print(f"\n=== OpenCR Ultrasonic Sensors ===")
         print(f"Left (addr 190):   {left_val:.3f}m")
         print(f"Front (addr 194):  {front_val:.3f}m")
         print(f"Right (addr 198):  {right_val:.3f}m")
         print(f"Time:              {time.strftime('%H:%M:%S')}")
         print("=" * 45)
+
     
     def destroy_node(self):
         """노드 종료 시 정리"""
