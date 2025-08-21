@@ -37,6 +37,11 @@ class UltrasonicPublisher(Node):
         self.ADDR_ULTRASONIC_FRONT = 194
         self.ADDR_ULTRASONIC_RIGHT = 198
         
+        # 이전 값 저장 (nan 필터링용)
+        self.prev_left = 0.0
+        self.prev_front = 0.0
+        self.prev_right = 0.0
+        
         # 초음파 센서 토픽 발행
         self.left_pub = self.create_publisher(Range, '/ultrasonic/left', 10)
         self.front_pub = self.create_publisher(Range, '/ultrasonic/front', 10)
@@ -126,6 +131,23 @@ class UltrasonicPublisher(Node):
             left_val = self.read_control_table(self.ADDR_ULTRASONIC_LEFT) or 0.0
             front_val = self.read_control_table(self.ADDR_ULTRASONIC_FRONT) or 0.0
             right_val = self.read_control_table(self.ADDR_ULTRASONIC_RIGHT) or 0.0
+            
+            # nan 값 필터링 (이전 값으로 대체)
+            import math
+            if math.isnan(left_val) or left_val == 0.0:
+                left_val = self.prev_left
+            else:
+                self.prev_left = left_val
+                
+            if math.isnan(front_val) or front_val == 0.0:
+                front_val = self.prev_front
+            else:
+                self.prev_front = front_val
+                
+            if math.isnan(right_val) or right_val == 0.0:
+                right_val = self.prev_right
+            else:
+                self.prev_right = right_val
             
             # Range 메시지 생성 및 발행
             self.publish_range_msg(self.left_pub, left_val, 'ultrasonic_left')
