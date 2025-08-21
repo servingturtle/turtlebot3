@@ -15,21 +15,17 @@ def generate_launch_description():
             description='Use simulation (Gazebo) clock if true'
         ),
         
-        # Sonar to Range Converter Node
+        # Ultrasonic Publisher Node
         Node(
             package='ultrasonic_sensor_bridge',
-            executable='sonar_to_range_converter',
-            name='sonar_to_range_converter',
+            executable='ultrasonic_publisher',
+            name='ultrasonic_publisher',
             output='screen',
             parameters=[{
                 'use_sim_time': LaunchConfiguration('use_sim_time'),
             }],
             remappings=[
                 # 토픽 리매핑 (필요시)
-                ('/sensor_state', '/sensor_state'),
-                ('/ultrasonic/left', '/ultrasonic/left'),
-                ('/ultrasonic/front', '/ultrasonic/front'),
-                ('/ultrasonic/right', '/ultrasonic/right'),
             ],
         ),
     ])

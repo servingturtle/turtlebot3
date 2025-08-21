@@ -6,27 +6,17 @@
 
 - OpenCR에서 보내는 3개의 초음파 센서 데이터를 ROS2로 변환
 - 왼쪽, 앞쪽, 오른쪽 초음파 센서 지원
+- DYNAMIXEL SDK를 통한 직접 OpenCR 제어 테이블 읽기
 - ROS1이 없는 환경에서도 시뮬레이션 모드로 동작
 - 실시간 데이터 변환 및 발행
+- nan 값 필터링으로 안정적인 데이터 제공
 
 ## 토픽
 
-### Sonar to Range Converter (권장)
-- **입력 토픽**: `/sensor_state` (turtlebot3_msgs/SensorState) - turtlebot3_node에서 발행하는 센서 상태
-- **출력 토픽**: 
-  - `/ultrasonic/left` (sensor_msgs/Range) - 왼쪽 초음파 센서
-  - `/ultrasonic/front` (sensor_msgs/Range) - 앞쪽 초음파 센서
-  - `/ultrasonic/right` (sensor_msgs/Range) - 오른쪽 초음파 센서
-
-### ROS1 브리지 모드
-- **입력 토픽 (ROS1)**:
-  - `/ultrasonic/left` (sensor_msgs/Range) - 왼쪽 초음파 센서
-  - `/ultrasonic/front` (sensor_msgs/Range) - 앞쪽 초음파 센서  
-  - `/ultrasonic/right` (sensor_msgs/Range) - 오른쪽 초음파 센서
-- **출력 토픽 (ROS2)**:
-  - `/ultrasonic/left` (sensor_msgs/Range) - 왼쪽 초음파 센서
-  - `/ultrasonic/front` (sensor_msgs/Range) - 앞쪽 초음파 센서
-  - `/ultrasonic/right` (sensor_msgs/Range) - 오른쪽 초음파 센서
+### 출력 토픽
+- `/ultrasonic/left` (sensor_msgs/Range) - 왼쪽 초음파 센서 (OpenCR 주소 190)
+- `/ultrasonic/front` (sensor_msgs/Range) - 앞쪽 초음파 센서 (OpenCR 주소 194)
+- `/ultrasonic/right` (sensor_msgs/Range) - 오른쪽 초음파 센서 (OpenCR 주소 198)
 
 ## 사용법
 
@@ -42,36 +32,14 @@ source install/setup.bash
 
 ### 2. 실행 방법
 
-#### 방법 1: Launch 파일 사용 (권장)
-
+#### Launch 파일 사용 (권장)
 ```bash
-# 기존 turtlebot3_node의 sonar 데이터를 Range 메시지로 변환 (권장)
-ros2 launch ultrasonic_sensor_bridge sonar_to_range_converter.launch.py
-
-# ROS1 브리지 모드 (ROS1이 설치된 경우)
-ros2 launch ultrasonic_sensor_bridge ultrasonic_ros1_bridge.launch.py
-
-# 시뮬레이션 모드 (ROS1 없이)
-ros2 launch ultrasonic_sensor_bridge ultrasonic_ros1_bridge.launch.py simulation_mode:=true
-
-# 기본 시뮬레이션 브리지
-ros2 launch ultrasonic_sensor_bridge ultrasonic_sensor_bridge.launch.py
+ros2 launch ultrasonic_sensor_bridge ultrasonic_publisher.launch.py
 ```
 
-#### 방법 2: 직접 실행
-
+#### 직접 실행
 ```bash
-# 기존 turtlebot3_node의 sonar 데이터를 Range 메시지로 변환 (권장)
-ros2 run ultrasonic_sensor_bridge sonar_to_range_converter
-
-# ROS1 브리지 모드
-ros2 run ultrasonic_sensor_bridge ultrasonic_ros1_bridge
-
-# 시뮬레이션 모드
-ros2 run ultrasonic_sensor_bridge ultrasonic_ros1_bridge --simulation
-
-# 기본 시뮬레이션 브리지
-ros2 run ultrasonic_sensor_bridge ultrasonic_sensor_bridge
+ros2 run ultrasonic_sensor_bridge ultrasonic_publisher
 ```
 
 ### 3. 토픽 확인
@@ -108,37 +76,29 @@ ros2 topic info /ultrasonic/left
 
 ## 구현 방식
 
-### 1. Sonar to Range Converter (권장)
-기존 `turtlebot3_node`에서 발행하는 `/sensor_state` 토픽의 `sonar` 데이터를 받아서 3개의 개별 `sensor_msgs/Range` 메시지로 변환합니다. 이 방법은 기존 코드를 수정하지 않고도 요구사항을 만족할 수 있습니다.
+DYNAMIXEL SDK를 사용하여 OpenCR의 제어 테이블에서 직접 3개 초음파 센서 값을 읽어서 `sensor_msgs/Range` 메시지로 발행합니다.
 
-### 2. ROS1 브리지
-OpenCR에서 직접 3개의 개별 초음파 센서 데이터를 ROS1 `sensor_msgs/Range` 형식으로 발행하고, 이를 ROS2로 변환하는 브리지입니다.
+**특징:**
+- OpenCR 주소 190, 194, 198에서 직접 읽기
+- nan 값 필터링으로 안정적인 데이터 제공
+- 10Hz 주기로 데이터 발행
+- 기존 turtlebot3_node와 독립적으로 동작
 
 ## OpenCR 설정
 
-### Sonar to Range Converter 사용 시
-기존 turtlebot3_node가 자동으로 sonar 데이터를 처리하므로 추가 설정이 필요하지 않습니다.
+DYNAMIXEL SDK가 자동으로 OpenCR의 제어 테이블에서 초음파 센서 값을 읽습니다. 추가 설정이 필요하지 않습니다.
 
-### ROS1 브리지 사용 시
-OpenCR에서 다음과 같이 초음파 센서 데이터를 발행해야 합니다:
-
-```cpp
-sensor_msgs::Range msg_ul_left, msg_ul_front, msg_ul_right;
-ros::Publisher ul_pub_left ("/ultrasonic/left",  &msg_ul_left);
-ros::Publisher ul_pub_front("/ultrasonic/front", &msg_ul_front);
-ros::Publisher ul_pub_right("/ultrasonic/right", &msg_ul_right);
-```
+**OpenCR 제어 테이블 주소:**
+- 왼쪽 초음파 센서: 주소 190
+- 앞쪽 초음파 센서: 주소 194
+- 오른쪽 초음파 센서: 주소 198
 
 ## 문제 해결
 
-### ROS1이 설치되지 않은 경우
-- 자동으로 시뮬레이션 모드로 전환됩니다
-- 경고 메시지가 출력되지만 정상적으로 동작합니다
-
 ### 토픽이 수신되지 않는 경우
-1. ROS1 마스터가 실행 중인지 확인
-2. OpenCR에서 올바른 토픽명으로 발행하고 있는지 확인
-3. 네트워크 연결 상태 확인
+1. OpenCR이 연결되어 있는지 확인
+2. USB 포트 권한 확인
+3. DYNAMIXEL SDK가 정상적으로 설치되었는지 확인
 
 ### 빌드 오류가 발생하는 경우
 ```bash
@@ -146,8 +106,20 @@ ros::Publisher ul_pub_right("/ultrasonic/right", &msg_ul_right);
 sudo apt update
 sudo apt install ros-humble-sensor-msgs ros-humble-turtlebot3-msgs
 
+# Python 의존성 설치
+pip3 install pyserial
+
 # 워크스페이스 재빌드
 colcon build --packages-select ultrasonic_sensor_bridge --cmake-clean-cache
+```
+
+### DYNAMIXEL SDK 관련 문제
+```bash
+# DYNAMIXEL SDK 설치 확인
+pip3 install dynamixel-sdk
+
+# Python 경로 확인
+python3 -c "import dynamixel_sdk; print('DYNAMIXEL SDK available')"
 ```
 
 ## 라이선스

@@ -11,10 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
-            'launch/ultrasonic_sensor_bridge.launch.py',
-            'launch/ultrasonic_ros1_bridge.launch.py',
-            'launch/sonar_to_range_converter.launch.py',
-            'launch/turtlebot3_with_ultrasonic.launch.py'
+            'launch/ultrasonic_publisher.launch.py'
         ]),
     ],
     install_requires=['setuptools'],
@@ -26,12 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                    'ultrasonic_sensor_bridge = ultrasonic_sensor_bridge.ultrasonic_sensor_bridge:main',
-        'ultrasonic_ros1_bridge = ultrasonic_sensor_bridge.ultrasonic_ros1_bridge:main',
-        'sonar_to_range_converter = ultrasonic_sensor_bridge.sonar_to_range_converter:main',
-        'opencr_monitor = ultrasonic_sensor_bridge.opencr_monitor:main',
-        'opencr_table_reader = ultrasonic_sensor_bridge.opencr_table_reader:main',
-        'ultrasonic_publisher = ultrasonic_sensor_bridge.ultrasonic_publisher:main',
+            'ultrasonic_publisher = ultrasonic_sensor_bridge.ultrasonic_publisher:main',
         ],
     },
 )
