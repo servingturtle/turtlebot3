@@ -84,6 +84,56 @@ DYNAMIXEL SDK를 사용하여 OpenCR의 제어 테이블에서 직접 3개 초�
 - 10Hz 주기로 데이터 발행
 - 기존 turtlebot3_node와 독립적으로 동작
 
+## 수정된 파일들
+
+이 패키지가 정상적으로 작동하기 위해서는 다음 파일들이 수정되어야 합니다:
+
+### turtlebot3_node 패키지 수정사항
+
+#### 1. `turtlebot3_node/include/turtlebot3_node/control_table.hpp`
+```cpp
+// 추가된 초음파 센서 제어 테이블 항목들
+ControlItem ultrasonic_left{190, 4};    // 왼쪽 초음파 센서
+ControlItem ultrasonic_front{194, 4};   // 앞쪽 초음파 센서  
+ControlItem ultrasonic_right{198, 4};   // 오른쪽 초음파 센서
+```
+
+#### 2. `turtlebot3_node/src/sensors/sensor_state.cpp`
+```cpp
+// 3개 초음파 센서 값 읽기 (추가됨)
+float ultrasonic_left = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_left.addr,
+    extern_control_table.ultrasonic_left.length);
+
+float ultrasonic_front = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_front.addr,
+    extern_control_table.ultrasonic_front.length);
+
+float ultrasonic_right = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_right.addr,
+    extern_control_table.ultrasonic_right.length);
+
+// 현재는 front 센서 값만 sonar 필드에 저장 (임시 해결책)
+msg->sonar = ultrasonic_front;
+```
+
+### 수정 이유
+- 기존 `turtlebot3_node`는 단일 `sonar` 센서만 지원
+- 3개 초음파 센서를 지원하도록 확장
+- `ultrasonic_publisher`가 이 수정된 코드를 활용하여 개별 센서 데이터 발행
+
+### 빌드 순서
+```bash
+# 1. turtlebot3_node 먼저 빌드
+colcon build --packages-select turtlebot3_node
+
+# 2. ultrasonic_sensor_bridge 빌드
+colcon build --packages-select ultrasonic_sensor_bridge
+
+# 3. 환경 설정
+source install/setup.bash
+```
+
 ## OpenCR 설정
 
 DYNAMIXEL SDK가 자동으로 OpenCR의 제어 테이블에서 초음파 센서 값을 읽습니다. 추가 설정이 필요하지 않습니다.

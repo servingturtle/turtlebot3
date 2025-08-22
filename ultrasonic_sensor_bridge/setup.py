@@ -11,7 +11,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', [
-            'launch/ultrasonic_publisher.launch.py'
+            'launch/ultrasonic_publisher.launch.py',
+            'launch/ultrasonic_with_lcd.launch.py'
         ]),
     ],
     install_requires=['setuptools'],
@@ -24,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'ultrasonic_publisher = ultrasonic_sensor_bridge.ultrasonic_publisher:main',
+            'ultrasonic_lcd_display = ultrasonic_sensor_bridge.ultrasonic_lcd_display:main',
         ],
     },
 )
