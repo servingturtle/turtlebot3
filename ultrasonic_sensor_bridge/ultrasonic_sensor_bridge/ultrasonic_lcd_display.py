@@ -43,12 +43,6 @@ class UltrasonicLCDDisplay(Node):
             clear_msg.data = ""
             self.lcd_clear_pub.publish(clear_msg)
             
-            # 제목 표시
-            title_msg = String()
-            title_msg.data = "Ultrasonic Sensors"
-            self.lcd_display_pub.publish(title_msg)
-            
-            time.sleep(0.5)
             
             self.get_logger().info('LCD initialized')
         except Exception as e:
@@ -77,13 +71,18 @@ class UltrasonicLCDDisplay(Node):
             clear_msg.data = ""
             self.lcd_clear_pub.publish(clear_msg)
             
-            # 첫 번째 줄: 제목
-            title_msg = String()
-            title_msg.data = "Ultrasonic Sensors"
-            self.lcd_display_pub.publish(title_msg)
-            
+
             time.sleep(0.1)
             
+            
+            
+            # 센서 값 표시
+
+            sensor_msg = String()
+            sensor_msg.data = f"L:{self.left_distance:.2f} F:{self.front_distance:.2f}"
+            self.lcd_write_pub.publish(sensor_msg)
+
+            time.sleep(0.1)
             # 두 번째 줄: 센서 값들
             # 커서를 두 번째 줄로 이동
             cursor_msg = String()
@@ -91,10 +90,9 @@ class UltrasonicLCDDisplay(Node):
             self.lcd_cursor_pub.publish(cursor_msg)
             
             time.sleep(0.1)
-            
-            # 센서 값 표시
+
             sensor_msg = String()
-            sensor_msg.data = f"L:{self.left_distance:.2f} F:{self.front_distance:.2f} R:{self.right_distance:.2f}"
+            sensor_msg.data = f"R:{self.right_distance:.2f}"
             self.lcd_write_pub.publish(sensor_msg)
             
             # 터미널에도 출력
@@ -111,10 +109,22 @@ class UltrasonicLCDDisplay(Node):
             clear_msg.data = ""
             self.lcd_clear_pub.publish(clear_msg)
             
-            # 한 줄에 모든 센서 값 표시
-            display_msg = String()
-            display_msg.data = f"L:{self.left_distance:.1f} F:{self.front_distance:.1f} R:{self.right_distance:.1f}"
-            self.lcd_display_pub.publish(display_msg)
+            sensor_msg = String()
+            sensor_msg.data = f"L:{self.left_distance:.2f} F:{self.front_distance:.2f}"
+            self.lcd_write_pub.publish(sensor_msg)
+
+            time.sleep(0.1)
+            # 두 번째 줄: 센서 값들
+            # 커서를 두 번째 줄로 이동
+            cursor_msg = String()
+            cursor_msg.data = "1,0"
+            self.lcd_cursor_pub.publish(cursor_msg)
+            
+            time.sleep(0.1)
+
+            sensor_msg = String()
+            sensor_msg.data = f"R:{self.right_distance:.2f}"
+            self.lcd_write_pub.publish(sensor_msg)
             
         except Exception as e:
             self.get_logger().error(f'Simple display error: {e}')
