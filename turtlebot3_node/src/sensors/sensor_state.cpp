@@ -130,5 +130,24 @@ void SensorState::publish(
     extern_control_table.battery_voltage.addr,
     extern_control_table.battery_voltage.length);
 
+  // Read 3 ultrasonic sensors
+  float ultrasonic_left = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_left.addr,
+    extern_control_table.ultrasonic_left.length);
+  
+  float ultrasonic_front = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_front.addr,
+    extern_control_table.ultrasonic_front.length);
+  
+  float ultrasonic_right = dxl_sdk_wrapper->get_data_from_device<float>(
+    extern_control_table.ultrasonic_right.addr,
+    extern_control_table.ultrasonic_right.length);
+  
+  // Store front sensor value in sonar field (for compatibility with existing code)
+  msg->sonar = ultrasonic_front;
+  
+  // TODO: Publish 3 ultrasonic sensors to separate topics
+  // This will be implemented in a separate node or future update
+
   pub_->publish(std::move(msg));
 }

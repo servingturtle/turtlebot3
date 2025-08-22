@@ -39,6 +39,8 @@
 cpp/
 bin/
 build/
+install/
+log/
 msg_gen/
 srv_gen/
 docs/
@@ -59,3 +61,34 @@ build-*/
 *.txt.user
 *.gch
 /.project
+
+# ROS2 specific
+*.db
+*.db-*
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
