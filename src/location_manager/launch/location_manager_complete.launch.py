@@ -19,6 +19,11 @@ def generate_launch_description():
     lidar_port = LaunchConfiguration('lidar_port', default='/dev/ttyUSB0')
     usb_port = LaunchConfiguration('usb_port', default='/dev/ttyACM0')
     enable_rfid = LaunchConfiguration('enable_rfid', default='false')
+    enable_ultrasonic_safety = LaunchConfiguration('enable_ultrasonic_safety', default='true')
+    safety_distance = LaunchConfiguration('safety_distance', default='0.40')
+    slow_distance = LaunchConfiguration('slow_distance', default='0.45')
+    warning_distance = LaunchConfiguration('warning_distance', default='0.50')
+    stop_duration = LaunchConfiguration('stop_duration', default='3.0')
     
     return LaunchDescription([
         # Launch 파라미터 선언
@@ -41,6 +46,31 @@ def generate_launch_description():
             'enable_rfid',
             default_value='false',
             description='Enable RFID tag detection and navigation'),
+        
+        DeclareLaunchArgument(
+            'enable_ultrasonic_safety',
+            default_value='true',
+            description='Enable ultrasonic safety controller'),
+        
+        DeclareLaunchArgument(
+            'safety_distance',
+            default_value='0.40',
+            description='Stop distance in meters (default: 40cm)'),
+        
+        DeclareLaunchArgument(
+            'slow_distance',
+            default_value='0.45',
+            description='Slow down distance in meters (default: 45cm)'),
+        
+        DeclareLaunchArgument(
+            'warning_distance',
+            default_value='0.50',
+            description='Warning distance in meters (default: 50cm)'),
+        
+        DeclareLaunchArgument(
+            'stop_duration',
+            default_value='3.0',
+            description='Stop duration in seconds (default: 3.0s)'),
         
         # 1. 하드웨어 브링업 (모터 + 센서 + TF) - 한 번만
         IncludeLaunchDescription(
@@ -105,5 +135,47 @@ def generate_launch_description():
             output='screen',
             condition=launch.conditions.IfCondition(enable_rfid),
         ),
+        
+        # 7. LCD 컨트롤러 (위치 정보 표시)
+        Node(
+            package='lcd_controller',
+            executable='lcd_controller',
+            name='lcd_controller',
+            output='screen',
+        ),
+        
+        # 8. 초음파 센서 퍼블리셔 (조건부)
+        Node(
+            package='ultrasonic_sensor_bridge',
+            executable='ultrasonic_publisher_ros',
+            name='ultrasonic_publisher',
+            output='screen',
+            condition=launch.conditions.IfCondition(enable_ultrasonic_safety),
+        ),
+        
+        # 9. 초음파 안전 제어기 (조건부)
+        Node(
+            package='ultrasonic_sensor_bridge',
+            executable='ultrasonic_safety_controller',
+            name='ultrasonic_safety_controller',
+            output='screen',
+            parameters=[{
+                'safety_distance': safety_distance,
+                'slow_distance': slow_distance,
+                'warning_distance': warning_distance,
+                'stop_duration': stop_duration,
+            }],
+            condition=launch.conditions.IfCondition(enable_ultrasonic_safety),
+        ),
+        
+        # 10. cmd_vel 토픽 리맵핑 (안전 제어 사용 시)
+        Node(
+            package='ultrasonic_sensor_bridge',
+            executable='cmd_vel_relay',
+            name='cmd_vel_relay',
+            output='screen',
+            condition=launch.conditions.IfCondition(enable_ultrasonic_safety),
+        ),
+        
         
     ])
